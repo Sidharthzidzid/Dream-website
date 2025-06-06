@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickTasker - Earn Money Completing Tasks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Modal backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            position: relative; /* For close button */
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280; /* gray-500 */
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-tasks text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold">QuickTasker</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="hover:text-blue-200 transition">Home</a>
+                <a href="#how-it-works" class="hover:text-blue-200 transition">How It Works</a>
+                <a href="#earn" class="hover:text-blue-200 transition">Earn</a>
+                <a href="#post" class="hover:text-blue-200 transition">Post a Task</a>
+                <a href="#testimonials" class="hover:text-blue-200 transition">Success Stories</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <button id="auth-button" class="bg-white text-blue-600 px-4 py-2 rounded-full font-medium hover:bg-blue-50 transition">Sign In</button>
+                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-900 px-4 py-2">
+            <a href="#" class="block py-2 text-white hover:bg-blue-800 px-2 rounded">Home</a>
+            <a href="#how-it-works" class="block py-2 text-white hover:bg-blue-800 px-2 rounded">How It Works</a>
+            <a href="#earn" class="block py-2 text-white hover:bg-blue-800 px-2 rounded">Earn</a>
+            <a href="#post" class="block py-2 text-white hover:bg-blue-800 px-2 rounded">Post a Task</a>
+            <a href="#testimonials" class="block py-2 text-white hover:bg-blue-800 px-2 rounded">Success Stories</a>
+            <div class="pt-2 border-t border-blue-700 mt-2">
+                <button id="mobile-auth-button" class="w-full bg-white text-blue-600 px-4 py-2 rounded-full font-medium hover:bg-blue-50 transition">Sign In</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-16 md:py-24">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">Earn money on your own schedule</h1>
+                <p class="text-xl mb-8 text-blue-100">QuickTasker connects people who need tasks completed with people who want to earn money by helping others.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button class="bg-white text-blue-600 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition transform hover:scale-105 pulse" onclick="openModal('register')">Start Earning Now</button>
+                    <button class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-full font-bold hover:bg-white hover:text-blue-600 transition" onclick="scrollToSection('post')">Post a Task</button>
+                </div>
+                <div class="mt-8 flex items-center space-x-2 text-sm">
+                    <div class="flex -space-x-2">
+                        <img src="https://randomuser.me/api/portraits/women/11.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="user">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="user">
+                        <img src="https://randomuser.me/api/portraits/women/45.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="user">
+                    </div>
+                    <span>Join <span class="font-bold">1,200,000+</span> active users</span>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <div class="relative max-w-md">
+                    <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="People earning money" class="w-full h-auto">
+                    <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-lg shadow-xl hidden md:block">
+                        <div class="flex items-center">
+                            <div class="bg-green-100 p-3 rounded-full mr-3">
+                                <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">Earned today</p>
+                                <p class="font-bold text-lg">$8,540</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">How QuickTasker Works</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Simple steps to earn money or get tasks completed</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition">
+                    <div class="flex justify-center mb-4">
+                        <div class="bg-blue-100 p-4 rounded-full inline-block">
+                            <i class="fas fa-search text-blue-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">1. Find Tasks</h3>
+                    <p class="text-gray-600">Browse available tasks in your area or search for remote tasks you can do from home.</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition">
+                    <div class="flex justify-center mb-4">
+                        <div class="bg-blue-100 p-4 rounded-full inline-block">
+                            <i class="fas fa-handshake text-blue-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">2. Complete Tasks</h3>
+                    <p class="text-gray-600">Accept tasks, communicate with the requester, and complete the work as agreed.</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition">
+                    <div class="flex justify-center mb-4">
+                        <div class="bg-blue-100 p-4 rounded-full inline-block">
+                            <i class="fas fa-wallet text-blue-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">3. Get Paid</h3>
+                    <p class="text-gray-600">Receive your earnings through our secure payment system, with options for instant payouts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Task Categories -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Popular Task Categories</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Find the right tasks that match your skills</p>
+            </div>
+            
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Delivery -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition cursor-pointer">
+                    <div class="h-32 bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-shipping-fast text-blue-600 text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Delivery</h3>
+                        <p class="text-gray-600">Food, packages, groceries, and more</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 text-sm rounded-full">+$25 avg. pay</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Virtual Assistant -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition cursor-pointer">
+                    <div class="h-32 bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-laptop text-purple-600 text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Virtual Assistant</h3>
+                        <p class="text-gray-600">Admin, research, data entry tasks</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-purple-100 text-purple-800 px-3 py-1 text-sm rounded-full">+$18/hr avg.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Handyman -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition cursor-pointer">
+                    <div class="h-32 bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-tools text-green-600 text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Handyman</h3>
+                        <p class="text-gray-600">Assembly, repairs, installations</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-green-100 text-green-800 px-3 py-1 text-sm rounded-full">+$50 avg. pay</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tutoring -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition cursor-pointer">
+                    <div class="h-32 bg-yellow-100 flex items-center justify-center">
+                        <i class="fas fa-chalkboard-teacher text-yellow-600 text-4xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2">Tutoring</h3>
+                        <p class="text-gray-600">Academic subjects, music, languages</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 text-sm rounded-full">+$30/hr avg.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <button class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition flex items-center mx-auto">
+                    Browse All Categories <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Why Choose QuickTasker?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">We make earning money easier and safer</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="flex flex-col items-center text-center p-6">
+                    <div class="bg-blue-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-shield-alt text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Safe Payments</h3>
+                    <p class="text-gray-600">Secure escrow system ensures you get paid for completed work</p>
+                </div>
+                
+                <div class="flex flex-col items-center text-center p-6">
+                    <div class="bg-purple-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-bolt text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Quick Payouts</h3>
+                    <p class="text-gray-600">Get paid instantly to your bank account or e-wallet</p>
+                </div>
+                
+                <div class="flex flex-col items-center text-center p-6">
+                    <div class="bg-green-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-star text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Rating System</h3>
+                    <p class="text-gray-600">Build your reputation and get more high-paying tasks</p>
+                </div>
+                
+                <div class="flex flex-col items-center text-center p-6">
+                    <div class="bg-yellow-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-headset text-yellow-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">24/7 Support</h3>
+                    <p class="text-gray-600">Our team is always ready to help resolve any issues</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Earnings Calculator -->
+    <section id="earn" class="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-10 lg:mb-0">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">How Much Can You Earn?</h2>
+                    <p class="text-xl mb-8 text-blue-100">Our earnings calculator helps you estimate how much money you can make based on your availability and skills.</p>
+                    <div class="bg-white bg-opacity-20 p-6 rounded-lg">
+                        <p class="font-bold mb-2">Top Taskers earn up to:</p>
+                        <p class="text-4xl font-bold mb-4">$4,325/month</p>
+                        <p class="text-blue-100">Working 25-30 hours per week</p>
+                    </div>
+                </div>
+                
+                <div class="lg:w-1/2 bg-white rounded-xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Earnings Calculator</h3>
+                    
+                    <div class="mb-6">
+                        <label for="task-category" class="block text-gray-700 mb-2">Task Category</label>
+                        <select id="task-category" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+                            <option value="delivery">Delivery Tasks</option>
+                            <option value="virtual-assistance">Virtual Assistance</option>
+                            <option value="handyman">Handyman Services</option>
+                            <option value="tutoring">Tutoring</option>
+                            <option value="pet-sitting">Pet Sitting</option>
+                            <option value="moving-help">Moving Help</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="hours-available" class="block text-gray-700 mb-2">Hours Available Per Week: <span id="hours-display">10</span>h</label>
+                        <input type="range" min="1" max="40" value="10" id="hours-available" class="w-full range-slider accent-blue-600">
+                        <div class="flex justify-between text-gray-600 text-xs">
+                            <span>5h</span>
+                            <span>10h</span>
+                            <span>15h</span>
+                            <span>20h</span>
+                            <span>25h</span>
+                            <span>30h</span>
+                            <span>35h</span>
+                            <span>40h</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Your Experience Level</label>
+                        <div class="grid grid-cols-3 gap-4" id="experience-level-buttons">
+                            <button type="button" data-level="beginner" class="py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200">Beginner</button>
+                            <button type="button" data-level="intermediate" class="py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-blue-100 font-bold">Intermediate</button>
+                            <button type="button" data-level="advanced" class="py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200">Advanced</button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-700">Estimated Weekly Earnings:</span>
+                            <span class="text-xl font-bold text-blue-600" id="estimated-weekly-earnings">$287 - $420</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">Estimated Monthly Earnings:</span>
+                            <span class="text-xl font-bold text-blue-600" id="estimated-monthly-earnings">$1,148 - $1,680</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition" onclick="openModal('register')">
+                        Start Earning Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Tasks -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-12">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-2">Recent Tasks Nearby</h2>
+                    <p class="text-gray-600">These tasks are waiting for you!</p>
+                    <span id="user-id-display" class="text-xs text-gray-500 hidden md:block"></span>
+                </div>
+                <div>
+                    <button class="flex items-center text-blue-600 font-medium" onclick="renderRecentTasks()">
+                        Refresh Tasks <i class="fas fa-sync-alt ml-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="recent-tasks-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tasks will be loaded here dynamically by JavaScript -->
+                <div class="bg-white rounded-xl p-6 shadow-md task-card flex items-center justify-center h-48 text-gray-500">
+                    <p>Loading tasks...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Post a Task Section -->
+    <section id="post" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Post a Task in Minutes</h2>
+                    <p class="text-gray-600">Get help with whatever you need - big or small</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-8 shadow-inner">
+                    <form id="post-task-form">
+                        <div class="mb-6">
+                            <label for="task-title" class="block text-gray-700 font-medium mb-2">What do you need help with?</label>
+                            <input type="text" id="task-title" placeholder="E.g. 'Help moving boxes', 'Fix my leaky faucet'" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="task-description" class="block text-gray-700 font-medium mb-2">Task Description</label>
+                            <textarea id="task-description" rows="4" placeholder="Describe exactly what you need..." class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="task-location-type" class="block text-gray-700 font-medium mb-2">Location or Remote?</label>
+                                <select id="task-location-type" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="in-person">In-person at my location</option>
+                                    <option value="remote">Remote task (work from anywhere)</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="task-budget" class="block text-gray-700 font-medium mb-2">Budget</label>
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600">$</span>
+                                    <input type="number" id="task-budget" placeholder="0.00" min="5" step="0.01" class="flex-1 px-4 py-3 rounded-r-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <label class="block text-gray-700 font-medium mb-2">Task Category</label>
+                            <div class="grid sm:grid-cols-3 gap-3" id="task-category-buttons">
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Delivery">Delivery</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Moving Help">Moving Help</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Handyman">Handyman</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Virtual Assistant">Virtual Assistant</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Tutoring">Tutoring</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Pet Care">Pet Care</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Cleaning">Cleaning</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Gardening">Gardening</button>
+                                <button type="button" class="category-btn py-2 px-4 border rounded-lg hover:bg-blue-50 border-blue-200 bg-white" data-category="Other">Other</button>
+                            </div>
+                            <input type="hidden" id="selected-task-category" name="task-category" required>
+                        </div>
+                        
+                        <div class="flex justify-center">
+                            <button type="submit" class="bg-blue-600 text-white px-8 py-4 rounded-full font-bold hover:bg-blue-700 transition transform hover:scale-105">
+                                Post Task Now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="mt-12 grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="bg-blue-100 p-4 rounded-full inline-block mb-4">
+                            <i class="fas fa-users text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">1,200,000+ Taskers</h3>
+                        <p class="text-gray-600">Skilled helpers ready to complete your task</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-purple-100 p-4 rounded-full inline-block mb-4">
+                            <i class="fas fa-bolt text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Fast Responses</h3>
+                        <p class="text-gray-600">Average response time is under 15 minutes</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-green-100 p-4 rounded-full inline-block mb-4">
+                            <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Money-Back Guarantee</h3>
+                        <p class="text-gray-600">If you're not satisfied, we'll refund your payment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Success Stories</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Hear from people earning money with QuickTasker</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/men/41.jpg" class="w-12 h-12 rounded-full mr-4" alt="user">
+                        <div>
+                            <h4 class="font-bold">Michael R.</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">"I've been using QuickTasker for 8 months now as a side hustle. Last month I made $2,850 working about 15 hours per week. It's changed my financial situation completely!"</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Delivery</span>
+                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Moving Help</span>
+                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Assembly</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/63.jpg" class="w-12 h-12 rounded-full mr-4" alt="user">
+                        <div>
+                            <h4 class="font-bold">Jessica T.</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">"As a stay-at-home mom, QuickTasker gave me the flexibility to earn money while taking care of my kids. I do virtual assistant work during nap times and make about $1,200/month."</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">Virtual Assistant</span>
+                        <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">Data Entry</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/men/76.jpg" class="w-12 h-12 rounded-full mr-4" alt="user">
+                        <div>
+                            <h4 class="font-bold">David K.</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">"After retiring, I wanted to stay active and earn some extra cash. I do handyman tasks through QuickTasker 2-3 days a week and earn about $1,500/month. It's the perfect semi-retirement gig!"</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Handyman</span>
+                        <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Furniture Assembly</span>
+                        <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Home Repairs</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <button class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition" onclick="openModal('register')">
+                    Join These Success Stories
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Download -->
+    <section class="py-16 bg-gradient-to-r from-blue-500 to-blue-700 text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 flex justify-center">
+                    <img src="https://illustrations.popsy.co/amber/mobile-apps.svg" alt="Mobile App" class="w-64 md:w-80">
+                </div>
+                
+                <div class="md:w-1/2">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Get the QuickTasker App</h2>
+                    <p class="text-xl mb-8 text-blue-100">Earn or post tasks on the go with our mobile app. Faster notifications, GPS tracking for deliveries, and instant payments.</p>
+                    
+                    <div class="grid sm:grid-cols-2 gap-4 max-w-md">
+                        <a href="#" class="bg-black bg-opacity-30 hover:bg-opacity-40 rounded-lg p-3 flex items-center transition">
+                            <div class="bg-white bg-opacity-90 p-1 rounded mr-3">
+                                <i class="fab fa-apple text-2xl text-gray-900"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs">Download on the</div>
+                                <div class="font-bold text-lg -mt-1">App Store</div>
+                            </div>
+                        </a>
+                        
+                        <a href="#" class="bg-black bg-opacity-30 hover:bg-opacity-40 rounded-lg p-3 flex items-center transition">
+                            <div class="bg-white bg-opacity-90 p-1 rounded mr-3">
+                                <i class="fab fa-google-play text-xl text-gray-900"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs">Get it on</div>
+                                <div class="font-bold text-lg -mt-1">Google Play</div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8 flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star-half-alt text-yellow-400 mr-2"></i>
+                            <span class="text-sm">4.8 (23K reviews)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+                <p class="text-gray-600">Find answers to common questions</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 focus:outline-none">
+                        <span class="text-lg font-medium text-left">How do I get paid for completed tasks?</span>
+                        <i class="fas fa-plus text-blue-600"></i>
+                    </button>
+                    <div class="faq-content px-6 pb-6 hidden">
+                        <p class="text-gray-700">Payments are securely processed through our platform. You can cash out anytime after completing a task and the requester has approved your work. We offer direct bank deposits, PayPal transfers, or QuickTasker debit card options for instant access to your earnings.</p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 focus:outline-none">
+                        <span class="text-lg font-medium text-left">What percentage does QuickTasker take?</span>
+                        <i class="fas fa-plus text-blue-600"></i>
+                    </button>
+                    <div class="faq-content px-6 pb-6 hidden">
+                        <p class="text-gray-700">We charge a 15% service fee on each completed task. This covers payment processing, customer support, liability insurance, and platform maintenance. For example, if you earn $100 for a task, you'll receive $85 after our fee.</p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 focus:outline-none">
+                        <span class="text-lg font-medium text-left">How quickly can I start earning money?</span>
+                        <i class="fas fa-plus text-blue-600"></i>
+                    </button>
+                    <div class="faq-content px-6 pb-6 hidden">
+                        <p class="text-gray-700">You can start earning immediately after completing your profile and passing our identity verification (takes 1-2 business days). Many taskers complete their first task within hours of signing up!</p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 focus:outline-none">
+                        <span class="text-lg font-medium text-left">Is there a membership fee?</span>
+                        <i class="fas fa-plus text-blue-600"></i>
+                    </button>
+                    <div class="faq-content px-6 pb-6 hidden">
+                        <p class="text-gray-700">No, signing up and browsing tasks is completely free. We only earn when you earn - our fee is taken as a percentage of completed tasks. We do offer optional Premium Memberships ($9.99/month) that give you early access to high-paying tasks and lower service fees.</p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 focus:outline-none">
+                        <span class="text-lg font-medium text-left">What if there's an issue with a task?</span>
+                        <i class="fas fa-plus text-blue-600"></i>
+                    </button>
+                    <div class="faq-content px-6 pb-6 hidden">
+                        <p class="text-gray-700">Our customer support team is available 24/7 to help resolve any issues. Payments are held in escrow until work is approved, and we offer mediation services if there's a disagreement between tasker and requester.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Start Earning?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto text-blue-100">Join over 1.2 million people who are earning money with QuickTasker</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button class="bg-white text-blue-600 px-8 py-4 rounded-full font-bold hover:bg-blue-50 transition transform hover:scale-105" onclick="openModal('register')">
+                    Sign Up as a Tasker
+                </button>
+                <button class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-blue-600 transition" onclick="scrollToSection('post')">
+                    Post a Task
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+                <div class="col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-tasks text-2xl"></i>
+                        <h2 class="text-xl font-bold">QuickTasker</h2>
+                    </div>
+                    <p class="text-gray-400 mb-4">Connecting people who need help with people who want to earn money, one task at a time.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">For Taskers</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">How It Works</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Browse Tasks</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Safety Tips</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Tasker Resources</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">For Requesters</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Post a Task</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Safety Tips</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Business Accounts</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Help Center</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Company</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Press</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400 mb-4 md:mb-0">
+                    &copy; 2023 QuickTasker. All rights reserved.
+                </div>
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-6 text-sm">
+                    <a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, addDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Global Variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Firebase Initialization
+        let app;
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false; // Flag to ensure Firebase is initialized and auth state checked
+
+        // Function to create a custom modal
+        function createModal(type, title, message, onConfirm = null, onCancel = null) {
+            const modalsContainer = document.getElementById('modals-container');
+            modalsContainer.innerHTML = ''; // Clear previous modals
+
+            const modalBackdrop = document.createElement('div');
+            modalBackdrop.className = 'modal-backdrop';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const closeButton = document.createElement('button');
+            closeButton.className = 'modal-close-button';
+            closeButton.innerHTML = '&times;';
+            closeButton.onclick = () => modalsContainer.removeChild(modalBackdrop);
+            modalContent.appendChild(closeButton);
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'text-2xl font-bold mb-4 text-gray-800';
+            modalTitle.textContent = title;
+            modalContent.appendChild(modalTitle);
+
+            const modalMessage = document.createElement('p');
+            modalMessage.className = 'text-gray-700 mb-6';
+            modalMessage.textContent = message;
+            modalContent.appendChild(modalMessage);
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'flex justify-center space-x-4';
+
+            if (type === 'confirm') {
+                const cancelButton = document.createElement('button');
+                cancelButton.className = 'px-6 py-3 rounded-full bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 transition';
+                cancelButton.textContent = 'Cancel';
+                cancelButton.onclick = () => {
+                    if (onCancel) onCancel();
+                    modalsContainer.removeChild(modalBackdrop);
+                };
+                buttonContainer.appendChild(cancelButton);
+
+                const confirmButton = document.createElement('button');
+                confirmButton.className = 'px-6 py-3 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition';
+                confirmButton.textContent = 'Confirm';
+                confirmButton.onclick = () => {
+                    if (onConfirm) onConfirm();
+                    modalsContainer.removeChild(modalBackdrop);
+                };
+                buttonContainer.appendChild(confirmButton);
+            } else if (type === 'alert') {
+                const okButton = document.createElement('button');
+                okButton.className = 'px-6 py-3 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition';
+                okButton.textContent = 'OK';
+                okButton.onclick = () => modalsContainer.removeChild(modalBackdrop);
+                buttonContainer.appendChild(okButton);
+            } else if (type === 'register') {
+                const registerForm = document.createElement('form');
+                registerForm.className = 'space-y-4 text-left';
+                registerForm.innerHTML = `
+                    <div>
+                        <label for="reg-name" class="block text-gray-700 text-sm font-bold mb-2">Your Name:</label>
+                        <input type="text" id="reg-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="John Doe" required>
+                    </div>
+                    <div>
+                        <label for="reg-user-type" class="block text-gray-700 text-sm font-bold mb-2">I am a:</label>
+                        <select id="reg-user-type" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                            <option value="">Select...</option>
+                            <option value="tasker">Tasker (I want to earn money)</option>
+                            <option value="requester">Requester (I need tasks done)</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-center pt-4">
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition">
+                            Continue as Guest
+                        </button>
+                    </div>
+                `;
+                registerForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('reg-name').value;
+                    const userType = document.getElementById('reg-user-type').value;
+
+                    if (!name || !userType) {
+                        createModal('alert', 'Error', 'Please fill in all registration fields.');
+                        return;
+                    }
+
+                    try {
+                        let currentUser;
+                        if (initialAuthToken) {
+                            currentUser = (await signInWithCustomToken(auth, initialAuthToken)).user;
+                        } else {
+                            currentUser = (await signInAnonymously(auth)).user;
+                        }
+
+                        userId = currentUser.uid; // Update global userId
+                        await setDoc(doc(db, `artifacts/${appId}/users`, userId), {
+                            name: name,
+                            userType: userType,
+                            createdAt: new Date(),
+                            // profileImageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
+                        });
+                        createModal('alert', 'Welcome!', `You are signed in as ${name} (${userType}). Your User ID is ${userId}.`);
+                        modalsContainer.removeChild(modalBackdrop); // Close registration modal
+                        updateAuthButton(); // Update header button
+                        document.getElementById('user-id-display').textContent = `Your User ID: ${userId}`;
+                        document.getElementById('user-id-display').classList.remove('hidden');
+
+                        // After registration, try to render recent tasks if ready
+                        if (isAuthReady) {
+                            renderRecentTasks();
+                        }
+
+                    } catch (error) {
+                        console.error("Error during registration:", error);
+                        createModal('alert', 'Registration Error', `Failed to register: ${error.message}`);
+                    }
+                };
+                modalContent.appendChild(registerForm);
+                // No button container for register type, form has its own submit button
+            }
+            
+            modalContent.appendChild(buttonContainer); // Append button container if not register type
+            modalBackdrop.appendChild(modalContent);
+            modalsContainer.appendChild(modalBackdrop);
+        }
+
+        // Initialize Firebase and set up auth listener
+        async function initializeFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length > 0) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                } else {
+                    console.error("Firebase config is empty. Cannot initialize Firebase.");
+                    createModal('alert', 'Firebase Error', 'Firebase configuration is missing. Data persistence will not work. Please ensure it is provided by the environment.');
+                    return;
+                }
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User signed in:", userId);
+                        updateAuthButton();
+                        document.getElementById('user-id-display').textContent = `Your User ID: ${userId}`;
+                        document.getElementById('user-id-display').classList.remove('hidden');
+
+                        // Check if user profile exists, if not, prompt for registration
+                        const userDocRef = doc(db, `artifacts/${appId}/users`, userId);
+                        const userDocSnap = await getDoc(userDocRef);
+                        if (!userDocSnap.exists()) {
+                            createModal('register', 'Complete Your Profile', 'Please tell us your name and how you want to use QuickTasker.');
+                        } else {
+                            // User profile exists, ensure isAuthReady is true and load data
+                            isAuthReady = true;
+                            renderRecentTasks();
+                        }
+                    } else {
+                        console.log("No user signed in. Attempting anonymous sign-in or custom token.");
+                        userId = null; // Clear userId if no user is signed in
+                        updateAuthButton();
+                        document.getElementById('user-id-display').classList.add('hidden'); // Hide User ID if not signed in
+                        
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (anonError) {
+                            console.error("Error signing in anonymously or with custom token:", anonError);
+                            createModal('alert', 'Authentication Error', 'Failed to sign in. Some features may not work. Please try refreshing.');
+                        }
+                    }
+                    isAuthReady = true; // Mark auth as ready after initial check
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                createModal('alert', 'Firebase Initialization Failed', `Could not initialize Firebase: ${error.message}. Please check your console for details.`);
+            }
+        }
+
+        // Call Firebase initialization immediately
+        initializeFirebase();
+
+
+        // Function to update the auth button in the header
+        function updateAuthButton() {
+            const authButton = document.getElementById('auth-button');
+            const mobileAuthButton = document.getElementById('mobile-auth-button');
+
+            if (auth.currentUser) {
+                authButton.textContent = 'Sign Out';
+                authButton.onclick = async () => {
+                    createModal('confirm', 'Sign Out', 'Are you sure you want to sign out?', async () => {
+                        try {
+                            await signOut(auth);
+                            createModal('alert', 'Signed Out', 'You have been signed out.');
+                            updateAuthButton(); // Update button back to Sign In
+                            renderRecentTasks(); // Refresh tasks (might show less if not authenticated)
+                        } catch (error) {
+                            console.error("Error signing out:", error);
+                            createModal('alert', 'Sign Out Error', `Failed to sign out: ${error.message}`);
+                        }
+                    });
+                };
+                mobileAuthButton.textContent = 'Sign Out';
+                mobileAuthButton.onclick = authButton.onclick; // Link mobile button action to desktop
+            } else {
+                authButton.textContent = 'Sign In';
+                authButton.onclick = () => createModal('register', 'Welcome to QuickTasker!', 'Sign in or register to get started!');
+                mobileAuthButton.textContent = 'Sign In';
+                mobileAuthButton.onclick = authButton.onclick; // Link mobile button action to desktop
+            }
+        }
+
+        // Scroll to section helper
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // FAQ accordion
+        const faqToggles = document.querySelectorAll('.faq-toggle');
+        
+        faqToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const content = toggle.nextElementSibling;
+                const icon = toggle.querySelector('i');
+                
+                // Toggle content visibility
+                content.classList.toggle('hidden');
+                
+                // Change icon
+                if (content.classList.contains('hidden')) {
+                    icon.classList.remove('fa-minus');
+                    icon.classList.add('fa-plus');
+                } else {
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-minus');
+                }
+            });
+        });
+        
+        // Animate task cards on scroll (initial setup)
+        const taskCards = document.querySelectorAll('.task-card');
+        
+        const animateOnScroll = () => {
+            taskCards.forEach(card => {
+                const cardPosition = card.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+                
+                if (cardPosition < screenPosition) {
+                    card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+                }
+            });
+        };
+        
+        window.addEventListener('scroll', animateOnScroll);
+        
+        // Initialize animation state
+        animateOnScroll();
+
+
+        // Earnings Calculator Logic
+        const taskCategorySelect = document.getElementById('task-category');
+        const hoursAvailableInput = document.getElementById('hours-available');
+        const hoursDisplay = document.getElementById('hours-display');
+        const experienceLevelButtons = document.querySelectorAll('#experience-level-buttons button');
+        const estimatedWeeklyEarnings = document.getElementById('estimated-weekly-earnings');
+        const estimatedMonthlyEarnings = document.getElementById('estimated-monthly-earnings');
+
+        let currentExperienceLevel = 'intermediate'; // Default
+
+        function calculateEarnings() {
+            const category = taskCategorySelect.value;
+            const hours = parseInt(hoursAvailableInput.value);
+            const experience = currentExperienceLevel;
+
+            let baseHourlyRate = 0;
+            switch (category) {
+                case 'delivery': baseHourlyRate = 18; break;
+                case 'virtual-assistance': baseHourlyRate = 15; break;
+                case 'handyman': baseHourlyRate = 25; break;
+                case 'tutoring': baseHourlyRate = 22; break;
+                case 'pet-sitting': baseHourlyRate = 12; break;
+                case 'moving-help': baseHourlyRate = 20; break;
+                default: baseHourlyRate = 15;
+            }
+
+            let multiplier = 1;
+            if (experience === 'beginner') {
+                multiplier = 0.8;
+            } else if (experience === 'advanced') {
+                multiplier = 1.2;
+            }
+
+            const weeklyMin = Math.floor(hours * baseHourlyRate * multiplier * 0.85); // 15% fee
+            const weeklyMax = Math.floor(hours * baseHourlyRate * multiplier * 1.15); // 15% buffer/upside
+
+            const monthlyMin = weeklyMin * 4;
+            const monthlyMax = weeklyMax * 4;
+
+            estimatedWeeklyEarnings.textContent = `$${weeklyMin} - $${weeklyMax}`;
+            estimatedMonthlyEarnings.textContent = `$${monthlyMin} - $${monthlyMax}`;
+            hoursDisplay.textContent = hours;
+        }
+
+        taskCategorySelect.addEventListener('change', calculateEarnings);
+        hoursAvailableInput.addEventListener('input', calculateEarnings);
+        experienceLevelButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                experienceLevelButtons.forEach(btn => btn.classList.remove('bg-blue-100', 'font-bold'));
+                button.classList.add('bg-blue-100', 'font-bold');
+                currentExperienceLevel = button.dataset.level;
+                calculateEarnings();
+            });
+        });
+
+        // Initial calculation
+        calculateEarnings();
+
+
+        // Firebase Integration for Tasks
+
+        // Function to render recent tasks
+        async function renderRecentTasks() {
+            if (!isAuthReady || !db) {
+                console.log("Firebase not ready or db not initialized for task rendering.");
+                return;
+            }
+
+            const recentTasksContainer = document.getElementById('recent-tasks-container');
+            recentTasksContainer.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">Loading tasks...</div>';
+
+            try {
+                // Public data: /artifacts/{appId}/public/data/{your_collection_name}
+                // Only fetch tasks that are 'open'
+                const tasksRef = collection(db, `artifacts/${appId}/public/data/tasks`);
+                const q = query(tasksRef, where("status", "==", "open")); // Filter for open tasks
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    recentTasksContainer.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">No tasks available right now. Check back later!</div>';
+                    return;
+                }
+
+                recentTasksContainer.innerHTML = ''; // Clear loading message
+
+                querySnapshot.forEach(taskDoc => {
+                    const task = taskDoc.data();
+                    const taskId = taskDoc.id;
+
+                    const taskCard = document.createElement('div');
+                    taskCard.className = 'bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition task-card';
+                    taskCard.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-xl mb-2">${task.title}</h3>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">$${parseFloat(task.budget).toFixed(2)}</span>
+                        </div>
+                        
+                        <div class="flex items-center text-gray-600 mb-4">
+                            <i class="fas ${task.locationType === 'in-person' ? 'fa-map-marker-alt' : 'fa-laptop-house'} mr-2 text-blue-600"></i>
+                            <span>${task.locationType === 'in-person' ? 'In-person' : 'Remote work'}</span>
+                        </div>
+                        
+                        <p class="text-gray-700 mb-4">${task.description}</p>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(task.requesterName || 'Anon')}&background=random" class="w-8 h-8 rounded-full mr-2" alt="profile">
+                                <span class="text-sm font-medium">${task.requesterName || 'Anonymous'}</span>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-star text-yellow-400"></i> 4.9 (100) <!-- Placeholder rating -->
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <button data-task-id="${taskId}" class="accept-task-btn bg-blue-600 text-white px-4 py-2 rounded-full font-bold hover:bg-blue-700 transition w-full">Accept Task</button>
+                        </div>
+                    `;
+                    recentTasksContainer.appendChild(taskCard);
+                });
+
+                // Add event listeners to the new "Accept Task" buttons
+                document.querySelectorAll('.accept-task-btn').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        if (!userId) {
+                            createModal('alert', 'Sign In Required', 'Please sign in or register to accept tasks.');
+                            return;
+                        }
+                        const taskId = e.target.dataset.taskId;
+                        createModal('confirm', 'Confirm Acceptance', 'Are you sure you want to accept this task?', async () => {
+                            await acceptTask(taskId);
+                        });
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+                recentTasksContainer.innerHTML = '<div class="col-span-full text-center text-red-500 py-8">Failed to load tasks. Please try again.</div>';
+            }
+        }
+
+        // Function to accept a task
+        async function acceptTask(taskId) {
+            if (!userId) {
+                createModal('alert', 'Error', 'You must be signed in to accept a task.');
+                return;
+            }
+            if (!db) {
+                console.error("Firestore not initialized.");
+                createModal('alert', 'Error', 'Database not ready. Please refresh the page.');
+                return;
+            }
+
+            try {
+                // Check if the current user is a 'tasker'
+                const userDocRef = doc(db, `artifacts/${appId}/users`, userId);
+                const userDocSnap = await getDoc(userDocRef);
+                const currentUserType = userDocSnap.exists() ? userDocSnap.data().userType : null;
+
+                if (currentUserType !== 'tasker') {
+                    createModal('alert', 'Permission Denied', 'Only Taskers can accept tasks. Please update your profile if you wish to be a Tasker.');
+                    return;
+                }
+
+                // Check if the task is still open before accepting
+                const taskRef = doc(db, `artifacts/${appId}/public/data/tasks`, taskId);
+                const taskSnap = await getDoc(taskRef);
+                if (!taskSnap.exists() || taskSnap.data().status !== 'open') {
+                    createModal('alert', 'Task Unavailable', 'This task is no longer available or has already been accepted.');
+                    renderRecentTasks(); // Refresh list to show updated status
+                    return;
+                }
+
+                await updateDoc(taskRef, {
+                    status: 'accepted',
+                    acceptedBy: userId,
+                    acceptedAt: new Date()
+                });
+                createModal('alert', 'Success!', 'Task accepted successfully! You can now communicate with the requester.');
+                renderRecentTasks(); // Refresh tasks to remove the accepted one
+            } catch (error) {
+                console.error("Error accepting task:", error);
+                createModal('alert', 'Error', `Failed to accept task: ${error.message}`);
+            }
+        }
+
+        // Post a Task Form Handling
+        const postTaskForm = document.getElementById('post-task-form');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const selectedTaskCategoryInput = document.getElementById('selected-task-category');
+
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove selected style from all buttons
+                categoryButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'border-blue-600'));
+                // Add selected style to the clicked button
+                button.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'border-blue-600');
+                // Set the hidden input value
+                selectedTaskCategoryInput.value = button.dataset.category;
+            });
+        });
+
+        postTaskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!userId) {
+                createModal('alert', 'Sign In Required', 'Please sign in or register to post a task.');
+                return;
+            }
+            if (!db) {
+                console.error("Firestore not initialized.");
+                createModal('alert', 'Error', 'Database not ready. Please refresh the page.');
+                return;
+            }
+
+            try {
+                // Check if the current user is a 'requester'
+                const userDocRef = doc(db, `artifacts/${appId}/users`, userId);
+                const userDocSnap = await getDoc(userDocRef);
+                const currentUserData = userDocSnap.exists() ? userDocSnap.data() : null;
+                const currentUserType = currentUserData ? currentUserData.userType : null;
+                const currentUserName = currentUserData ? currentUserData.name : 'Anonymous Requester';
+
+                if (currentUserType !== 'requester') {
+                    createModal('alert', 'Permission Denied', 'Only Requesters can post tasks. Please update your profile if you wish to post tasks.');
+                    return;
+                }
+
+                const taskData = {
+                    title: document.getElementById('task-title').value,
+                    description: document.getElementById('task-description').value,
+                    locationType: document.getElementById('task-location-type').value,
+                    budget: parseFloat(document.getElementById('task-budget').value),
+                    category: selectedTaskCategoryInput.value,
+                    requesterId: userId,
+                    requesterName: currentUserName,
+                    status: 'open', // 'open', 'accepted', 'completed', 'disputed'
+                    createdAt: new Date(),
+                    acceptedBy: null,
+                    acceptedAt: null
+                };
+
+                if (!taskData.category) {
+                    createModal('alert', 'Category Missing', 'Please select a task category.');
+                    return;
+                }
+
+                // Public data: /artifacts/{appId}/public/data/{your_collection_name}
+                await addDoc(collection(db, `artifacts/${appId}/public/data/tasks`), taskData);
+
+                createModal('alert', 'Success!', 'Your task has been posted successfully!');
+                postTaskForm.reset(); // Clear the form
+                selectedTaskCategoryInput.value = ''; // Clear hidden input
+                categoryButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'border-blue-600')); // Reset button styles
+                renderRecentTasks(); // Refresh the list of tasks
+            } catch (error) {
+                console.error("Error posting task:", error);
+                createModal('alert', 'Error', `Failed to post task: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
